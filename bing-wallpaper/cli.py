@@ -7,9 +7,9 @@
 BING WALLPAPER CLI
 
 Usage:
-  bing-wallpaper preview
-  bing-wallpaper download
-  bing-wallpaper set
+  bing-wallpaper preview [ <days:(days before today)> ]
+  bing-wallpaper download [ <days:(days before today)> ]
+  bing-wallpaper set [ <days:(days before today)> ]
   bing-wallpaper -h | --help
   bing-wallpaper -V | --version
 
@@ -32,14 +32,16 @@ def main(args=None):
     if not args:
         args = docopt(__doc__, version="bing-wallpaper {0}".format(__version__))
 
+    idx = args['-d'] if int(args['-p']) else 0
+
     if args["preview"] or args["p"]:
-        task.preview()
+        task.preview(idx)
 
     elif args["download"] or args["d"]:
-        task.download_wallpaper()
+        task.download_wallpaper(idx)
 
     elif args["set"] or args["s"]:
-        task.set_wallpaper()
+        task.set_wallpaper(idx)
 
     else:
         print("unknown command for bing wallpaper.")

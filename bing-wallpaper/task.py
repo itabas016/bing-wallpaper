@@ -51,9 +51,9 @@ def as_object_hook(dict):
                      dict['hsh'])
 
 
-def preview():
+def preview(idx=0):
     try:
-        img_path = download_wallpaper()
+        img_path = download_wallpaper(idx)
         if img_path == '' or '.jpg' not in img_path:
             print("Get wallpaper throw an error...")
         command = ''.join(['start ', img_path])
@@ -65,9 +65,9 @@ def preview():
 '''
 Reference open source method
 '''
-def set_wallpaper():
+def set_wallpaper(idx=0):
 
-    wallpaper_path = download_wallpaper()
+    wallpaper_path = download_wallpaper(idx)
     if wallpaper_path == '' or '.jpg' not in wallpaper_path:
         print('Download wallpaper throw an error, please check error message.')
         return

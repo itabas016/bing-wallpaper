@@ -26,9 +26,15 @@ Currently, this tool support wallpaper `preview`, `download` and `set`
 # preview today's wallpaper from bing website
 bing-wallpaper preview
 
+# preview yesterday's wallpaper from bing website
+bing-wallpaper preview 1
+
 # download specify date wallpaper from bing website
 # default date parameter is today, and download path is home directory
 bing-wallpaper download
+
+# download yesterday's wallpaper from bing website
+bing-wallpaper download 1
 
 #set today's wallpaper to desktop
 bing-wallpaper set

@@ -4,3 +4,4 @@
 # https://github.com/itabas016/bing-wallpaper
 
 __version__ = "0.0.0.1"
+VERSION = __version__
