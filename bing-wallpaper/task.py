@@ -35,10 +35,32 @@ class Image(object):
         self.copyrightLink = copyrightlink
         self.quiz = quiz
         self.wp = wp
-        self.hash = hsh
+        self.hsh = hsh
+    
+
+def as_object_hook(dict):
+        return Image(dict['startdate'],
+                     dict['fullstartdate'],
+                     dict['enddate'],
+                     dict['url'],
+                     dict['urlbase'],
+                     dict['copyright'],
+                     dict['copyrightlink'],
+                     dict['quiz'],
+                     dict['wp'],
+                     dict['hsh'])
+
 
 def preview():
-    pass
+    try:
+        img_path = download_wallpaper()
+        if img_path == '' or '.jpg' not in img_path:
+            print("Get wallpaper throw an error...")
+        command = ''.join(['start ', img_path])
+        os.system(command)
+        print("The detail please check here: \r\n", img_path)
+    except Exception as e:
+        print("Occurred an error when open wallpaper. \r\n", str(e))
 
 '''
 Reference open source method
@@ -46,7 +68,7 @@ Reference open source method
 def set_wallpaper():
 
     wallpaper_path = download_wallpaper()
-    if wallpaper_path == '' or '.jpg' not in wallpaper_path
+    if wallpaper_path == '' or '.jpg' not in wallpaper_path:
         print('Download wallpaper throw an error, please check error message.')
         return
 
@@ -67,51 +89,46 @@ def json_parse(response):
     try:
         images = json.loads(response)["images"]
         for item in images:
-            image = json.loads(item, object_hook=lambda d:
-                                            Image(dict['startdate'], 
-                                            dict['fullstartdate'],
-                                            dict['enddate'], 
-                                            dict['url'], 
-                                            dict['urlBase'], 
-                                            dict['copyright'], 
-                                            dict['copyrightlink'], 
-                                            dict['quiz'], 
-                                            dict['wp'], 
-                                            dict['hsh']))
-            filename = ''.join([image.endDate, image.urlBase.split('/')[-1]])
-            img_path = os.environ['HOME'].join([filename, '.jpg'])
+            # image = json.loads(item, object_hook=as_object_hook)
+            image = as_object_hook(item)
+            filename = ''.join([image.endDate, '_', image.urlBase.split('/')[-1].lower()])
+            img_path = ''.join([os.environ['USERPROFILE'], '\\', filename, '.jpg'])
             if os.path.isfile(img_path):
-                print('Image of', filename, 'already exsits.')
-            return
+                print('Image of', filename, 'is already exsits.')
+                return img_path
             print('Downloading: ', filename)
-            urlretrieve(HOST.join(url), img_path)
+            urlretrieve(''.join([HOST, image.url]), img_path)
+            print("Download is done~")
+            print("Image file path: ", img_path)
             return img_path
 
     except Exception as e:
-        print('Error while processing json: ', e)
+        print('Error while processing json: ', str(e))
         return
 
 def xml_parse(response):
     try:
-        xmldoc = minidom.parse(response)
+        xmldoc = minidom.parseString(response)
         for element in xmldoc.getElementsByTagName(NODE_IMAGE):
 
-            today = element.getElementsByTagName(NODE_ENDDATE)
-            url = element.getElementsByTagName(NODE_URL)
-            urlBase = element.getElementsByTagName(NODE_URLBASE)
-            description = element.getElementsByTagName(NODE_COPYRIGHT)
+            today = element.getElementsByTagName(NODE_ENDDATE)[0].firstChild.nodeValue
+            url = element.getElementsByTagName(NODE_URL)[0].firstChild.nodeValue
+            urlBase = element.getElementsByTagName(NODE_URLBASE)[0].firstChild.nodeValue
+            description = element.getElementsByTagName(NODE_COPYRIGHT)[0].firstChild.nodeValue
 
-            filename = ''.join([today, urlBase.split('/')[-1]])
-            img_path = os.environ['HOME'].join([filename, '.jpg'])
+            filename = ''.join([today, '_', urlBase.split('/')[-1]])
+            img_path = ''.join([os.environ['USERPROFILE'], '\\',filename, '.jpg'])
             if os.path.isfile(img_path):
                 print('Image of', filename, 'already exsits.')
-            return
+                return img_path
             print('Downloading: ', filename)
-            urlretrieve(HOST.join(url.replace('_1366x768', '_1920x1200')), img_path)
+            urlretrieve(''.join([HOST, url.replace('_1366x768', '_1920x1200')]), img_path)
+            print("Download is done~")
+            print("Image file path: ", img_path)
             return img_path
 
     except Exception as e:
-        print('Error while processing XML: ', e)
+        print('Error while processing XML: ', str(e))
         return
 
 
@@ -121,10 +138,11 @@ def download_wallpaper(idx=0, days=1, fmt=FORMAT_JSON, region=REGION_US):
         response = urlopen(request)
 
         if response.status == RESPONSE_OK:
+            content = response.read().decode('utf-8')
             if fmt == FORMAT_JSON:
-                return json_parse(response)
+                return json_parse(content)
             elif fmt == FORMAT_XML:
-                return xml_parse(response)
+                return xml_parse(content)
             else:
                 print("invaild format. only support json and xml.")
                 return
@@ -132,5 +150,5 @@ def download_wallpaper(idx=0, days=1, fmt=FORMAT_JSON, region=REGION_US):
             print(response.message)
             return
     except Exception as e:
-        print('Error while downloading: ', idx, e)
+        print('Error while downloading: ', idx, str(e))
         return  
